@@ -1,9 +1,8 @@
-FROM zalando/openjdk:8u45-b14-6
+FROM registry.opensource.zalan.do/stups/openjdk:8u66-b17-1-12
 
-COPY target/logsink.jar /logsink.jar
+MAINTAINER Zalando SE
 
-COPY scm-source.json /scm-source.json
+CMD java $(java-dynamic-memory-opts) $(appdynamics-agent) -jar /logsink.jar
 
-EXPOSE 8080
-
-CMD java -jar /logsink.jar
+COPY target/logsink.jar /
+COPY target/scm-source.json /
