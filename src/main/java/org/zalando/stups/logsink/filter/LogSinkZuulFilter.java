@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zalando.stups.logsink.provider.TokenProvider;
 
-import javax.servlet.http.HttpServletRequest;
+import static java.util.Optional.empty;
 
 @Component
 public class LogSinkZuulFilter extends ZuulFilter {
@@ -34,9 +34,8 @@ public class LogSinkZuulFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        HttpServletRequest httpServletRequest = ctx.getRequest();
-        final String accessToken = tokenProvider.getAccessToken(httpServletRequest.getRequestURI());
+        final String accessToken = tokenProvider.getAccessToken();
         ctx.addZuulRequestHeader(AUTHORIZATION_HEADER, BEARER + " " + accessToken);
-        return null;
+        return empty();
     }
 }

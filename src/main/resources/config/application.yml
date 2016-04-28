@@ -15,10 +15,6 @@ spring:
               write-dates-as-timestamps: false
         deserialization:
             fail-on-unknown-properties: false
-    oauth2:
-        resource:
-            tokenInfoUri: ${TOKEN_INFO_URI}
-
 
 #
 # OAuth2
@@ -36,8 +32,8 @@ zuul:
   ignoredServices: '*'
   routes:
     instance-logs:
-      path: /instance-logs/**
-      url: ${FULLSTOP_URL}/api
+      path: /api/instance-logs/**
+      url: ${FULLSTOP_URL}
       stripPrefix: false
 
 hystrix:

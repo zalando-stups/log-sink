@@ -8,11 +8,11 @@ public class TokenProvider {
 
     private AccessTokensBean accessTokensBean;
 
-    public String getAccessToken(final String uri) {
-        return accessTokensBean.get(LOGSINK);
+    public TokenProvider(final AccessTokensBean accessTokensBean) {
+        this.accessTokensBean = accessTokensBean;
     }
 
-    public TokenProvider(AccessTokensBean accessTokensBean) {
-        this.accessTokensBean = accessTokensBean;
+    public String getAccessToken() {
+        return accessTokensBean.get(LOGSINK);
     }
 }

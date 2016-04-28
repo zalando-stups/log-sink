@@ -68,12 +68,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.zalando.stups</groupId>
-            <artifactId>stups-spring-oauth2-server</artifactId>
-            <version>1.0.15.RC1</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.zalando.zmon</groupId>
             <artifactId>zmon-actuator</artifactId>
             <version>0.9.5</version>
@@ -108,4 +102,14 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/libs-milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
