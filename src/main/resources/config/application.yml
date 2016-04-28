@@ -16,6 +16,11 @@ spring:
         deserialization:
             fail-on-unknown-properties: false
 
+security:
+    user:
+        name: ${USERNAME}
+        password: ${PASSWORD}
+
 #
 # OAuth2
 #
@@ -36,10 +41,18 @@ zuul:
       url: ${FULLSTOP_URL}
       stripPrefix: false
 
+
 hystrix:
   command:
     default:
+      # https://github.com/Netflix/Hystrix/wiki/Configuration#CommandExecution
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 2500
+            timeoutInMilliseconds: 3000
+
+#logging:
+#    level:
+#      org.springframework.web: DEBUG
+#      com.netflix.zuul: DEBUG
+#      org.springframework.cloud: DEBUG
