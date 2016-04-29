@@ -6,7 +6,7 @@ tokens:
 zuul:
   routes:
     instance-logs:
-      url: http://localhost:${wiremock-port:10080}
+      url: http://localhost:${wiremock.port:10080}
 
 security:
   user:
