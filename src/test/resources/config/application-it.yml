@@ -1,0 +1,14 @@
+tokens:
+  test-tokens: logsink=1234567889
+  accessTokenUri: http://localhost:10081
+  credentials-directory: .
+
+zuul:
+  routes:
+    instance-logs:
+      url: http://localhost:${wiremock-port:10080}
+
+security:
+  user:
+    name: it-user
+    password: t0p5ecr3t

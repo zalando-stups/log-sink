@@ -1,46 +1,38 @@
 management:
-    # move all management endpoints to a different port
-    port: 7979
+  # move all management endpoints to a different port
+  port: 7979
+  security:
+    enabled: false
 
 endpoints:
-    health:
-        sensitive: false
+  health:
+    sensitive: false
 
 spring:
-    # JACKSON (JacksonProperties)
-    jackson:
-        property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
-        date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
-        serialization:
-              write-dates-as-timestamps: false
-        deserialization:
-            fail-on-unknown-properties: false
-
-security:
-    user:
-        name: ${USERNAME}
-        password: ${PASSWORD}
+  # JACKSON (JacksonProperties)
+  jackson:
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
 
 #
 # OAuth2
 #
 tokens:
-    accessTokenUri: ${ACCESS_TOKEN_URI}
-    credentialsDirectory: ${CREDENTIALS_DIR}
-
-    token-configuration-list:
-        - tokenId: logsink
-          scopes:
-              - uid
+  token-configuration-list:
+  - tokenId: logsink
+    scopes:
+    - uid
 
 zuul:
   ignoredServices: '*'
   routes:
     instance-logs:
       path: /api/instance-logs/**
-      url: ${FULLSTOP_URL}
       stripPrefix: false
-
 
 hystrix:
   command:
@@ -49,7 +41,11 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 3000
+            timeoutInMilliseconds: 5000
+  threadpool:
+    default:
+      maxQueueSize: 16
+      queueSizeRejectionThreshold: 16
 
 #logging:
 #    level:
