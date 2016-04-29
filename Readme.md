@@ -1,6 +1,12 @@
-# logsink
+# Log Sink
 
-### proxy to sink log
+[![codecov](https://codecov.io/gh/zalando-stups/logsink/branch/master/graph/badge.svg)](https://codecov.io/gh/zalando-stups/logsink)
+[![Build Status](https://api.travis-ci.org/zalando-stups/logsink.svg?branch=master)](https://travis-ci.org/zalando-stups/logsink)
+
+This application is supposed to serve as a central sink for audit- and traceability relevant log files in the STUPS ecosystem,
+such as the taupage.yaml and logs files written by audit daemon in Taupage hosts.
+
+The current implementation is only a proxy that forwards all matching requests to Fullstop.
 
 ## License
 
