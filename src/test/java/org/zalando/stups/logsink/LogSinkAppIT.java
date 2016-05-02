@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @SpringApplicationConfiguration(LogSinkApp.class)
 @WebIntegrationTest(randomPort = true)
 @ActiveProfiles("it")
-@Ignore
 public class LogSinkAppIT {
 
     @ClassRule
