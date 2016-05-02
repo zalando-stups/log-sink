@@ -25,7 +25,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -68,7 +67,7 @@ public class LogSinkAppIT {
     public void testPushLogs() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
-        stubFor(post(urlPathMatching("/api/instance-logs"))
+        stubFor(post(urlPathEqualTo("/api/instance-logs"))
                 .withRequestBody(equalToJson(jsonPayload))
                 .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")) // static test token, see config/application-it.yml
                 .willReturn(aResponse().withStatus(200)));
