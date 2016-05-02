@@ -1,7 +1,7 @@
 # Log Sink
 
-[![codecov](https://codecov.io/gh/zalando-stups/logsink/branch/master/graph/badge.svg)](https://codecov.io/gh/zalando-stups/logsink)
-[![Build Status](https://api.travis-ci.org/zalando-stups/logsink.svg?branch=master)](https://travis-ci.org/zalando-stups/logsink)
+[![codecov](https://codecov.io/gh/zalando-stups/log-sink/branch/master/graph/badge.svg)](https://codecov.io/gh/zalando-stups/log-sink)
+[![Build Status](https://api.travis-ci.org/zalando-stups/log-sink.svg?branch=master)](https://travis-ci.org/zalando-stups/log-sink)
 
 This application is supposed to serve as a central sink for audit- and traceability relevant log files in the STUPS ecosystem,
 such as the taupage.yaml and logs files written by audit daemon in Taupage hosts.

@@ -23,7 +23,7 @@ spring:
 #
 tokens:
   token-configuration-list:
-  - tokenId: logsink
+  - tokenId: log-sink
     scopes:
     - uid
 

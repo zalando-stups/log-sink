@@ -1,5 +1,5 @@
 tokens:
-  test-tokens: logsink=1234567889
+  test-tokens: log-sink=1234567889
   accessTokenUri: http://localhost:10081
   credentials-directory: .
 
