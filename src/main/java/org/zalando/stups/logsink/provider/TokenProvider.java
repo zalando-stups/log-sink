@@ -4,7 +4,7 @@ import org.zalando.stups.tokens.AccessTokensBean;
 
 public class TokenProvider {
 
-    public static final String LOGSINK = "logsink";
+    public static final String LOGSINK = "log-sink";
 
     private AccessTokensBean accessTokensBean;
 

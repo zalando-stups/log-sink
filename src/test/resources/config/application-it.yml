@@ -1,0 +1,18 @@
+management:
+  security:
+    enabled: false
+
+tokens:
+  test-tokens: log-sink=1234567890
+  accessTokenUri: http://localhost:10081
+  credentials-directory: .
+
+zuul:
+  routes:
+    instance-logs:
+      url: http://localhost:${wiremock.port:10080}/api/instance-logs
+
+security:
+  user:
+    name: it-user
+    password: t0p5ecr3t
