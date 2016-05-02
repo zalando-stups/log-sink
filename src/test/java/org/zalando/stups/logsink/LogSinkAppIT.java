@@ -7,10 +7,13 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.core.env.Environment;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +30,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -42,6 +46,8 @@ public class LogSinkAppIT {
     private static final String CORRECT_USER = "it-user";
     private static final String CORRECT_PASSWORD = "t0p5ecr3t";
 
+    private final Logger log = getLogger(getClass());
+
     @Rule
     public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
@@ -51,8 +57,14 @@ public class LogSinkAppIT {
     @Value("${local.server.port}")
     private int port;
 
+    @Value("${local.management.port}")
+    private int managementPort;
+
     private String jsonPayload;
     private ImmutableMap<String, Object> payload;
+
+    @Autowired
+    Environment env;
 
     @Before
     public void setUp() throws Exception {
@@ -61,6 +73,14 @@ public class LogSinkAppIT {
                 "an_integer", 5,
                 "complex_inner_type", singletonMap("hello", "World"));
         jsonPayload = new ObjectMapper().writeValueAsString(payload);
+    }
+
+    @Test
+    public void testManagementEndpoints() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate();
+        log.info("ENVIRONMENT:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/env", String.class));
+        log.info("CONFIG_PROPS:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/configprops", String.class));
+        log.info("ROUTES:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/routes", String.class));
     }
 
     @Test

@@ -1,3 +1,7 @@
+management:
+  security:
+    enabled: false
+
 tokens:
   test-tokens: log-sink=1234567890
   accessTokenUri: http://localhost:10081
