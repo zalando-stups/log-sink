@@ -31,8 +31,7 @@ zuul:
   ignoredServices: '*'
   routes:
     instance-logs:
-      path: /api/instance-logs/**
-      stripPrefix: false
+      path: /instance-logs
 
 hystrix:
   command:
