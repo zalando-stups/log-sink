@@ -25,6 +25,11 @@ hystrix:
       maxQueueSize: 16
       queueSizeRejectionThreshold: 16
 
+server:
+  error:
+    whitelabel:
+      enabled: false
+
 #logging:
 #    level:
 #      org.springframework.web: DEBUG

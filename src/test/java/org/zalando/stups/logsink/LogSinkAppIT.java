@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SpringApplicationConfiguration(LogSinkApp.class)
@@ -95,5 +96,42 @@ public class LogSinkAppIT {
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
         assertThat(response.getStatusCode()).isEqualTo(OK);
+    }
+
+    @Test
+    public void testPushLogsUnauthenticated() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate();
+
+        stubFor(post(urlPathEqualTo("/api/instance-logs"))
+                .withRequestBody(equalToJson(jsonPayload))
+                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")) // static test token, see config/application-it.yml
+                .willReturn(aResponse().withStatus(200)));
+
+        final URI url = URI.create("http://localhost:" + port + "/instance-logs");
+        final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
+    }
+
+    @Test
+    public void testPushLogsWrongPassword() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, "wrong-password");
+
+        stubFor(post(urlPathEqualTo("/api/instance-logs"))
+                .withRequestBody(equalToJson(jsonPayload))
+                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")) // static test token, see config/application-it.yml
+                .willReturn(aResponse().withStatus(200)));
+
+        final URI url = URI.create("http://localhost:" + port + "/instance-logs");
+        final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
+    }
+
+    @Test
+    public void testInvokeRootEndpoint() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate();
+
+        final URI url = URI.create("http://localhost:" + port);
+        final ResponseEntity<String> response = restOperations.exchange(RequestEntity.get(url).build(), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
     }
 }

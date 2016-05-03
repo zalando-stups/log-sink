@@ -1,7 +1,6 @@
 package org.zalando.stups.logsink.filter;
 
 import org.slf4j.MDC;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 
-@Component
-class RequestInfoMDCFilter implements Filter {
+public class RequestInfoMDCFilter implements Filter {
 
     private static final String KEY = "request";
     private static final String X_FORWARDED_FOR = "x-forwarded-for";
