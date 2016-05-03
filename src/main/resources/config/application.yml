@@ -8,7 +8,7 @@ zuul:
   ignoredServices: '*'
   routes:
     instance-logs:
-      path: /instance-logs
+      path: /instance-logs/**
       url: ${FULLSTOP_URL}
 
 
