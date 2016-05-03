@@ -9,6 +9,8 @@ zuul:
   routes:
     instance-logs:
       path: /instance-logs
+      url: ${FULLSTOP_URL}
+
 
 hystrix:
   command:
