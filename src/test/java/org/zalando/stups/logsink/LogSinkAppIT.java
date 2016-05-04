@@ -8,12 +8,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.core.env.Environment;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -63,9 +61,6 @@ public class LogSinkAppIT {
 
     private String jsonPayload;
     private ImmutableMap<String, Object> payload;
-
-    @Autowired
-    Environment env;
 
     @Before
     public void setUp() throws Exception {
