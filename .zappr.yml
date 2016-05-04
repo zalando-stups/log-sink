@@ -1,5 +1,5 @@
 approvals:
   minimum: 1
-    from:
-      orgs:
-          - zalando
+  from:
+    orgs:
+      - zalando
