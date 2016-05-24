@@ -28,7 +28,7 @@ public class ClientErrorLogFilter extends OncePerRequestFilter {
     private void logFailureResponses(final HttpServletResponse response) {
         final HttpStatus status = HttpStatus.valueOf(response.getStatus());
         if (status.is4xxClientError()) {
-            log.warn("Response status {}: {}", status, status.getReasonPhrase());
+            log.info("Response status {}: {}", status, status.getReasonPhrase());
         }
     }
 }
