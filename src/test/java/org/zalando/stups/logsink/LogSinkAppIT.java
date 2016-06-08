@@ -1,6 +1,7 @@
 package org.zalando.stups.logsink;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -24,13 +25,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -64,6 +68,8 @@ public class LogSinkAppIT {
 
     @Before
     public void setUp() throws Exception {
+        WireMock.reset();
+
         payload = ImmutableMap.of(
                 "foo", "bar",
                 "an_integer", 5,
@@ -83,24 +89,22 @@ public class LogSinkAppIT {
     public void testPushLogs() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
-        stubFor(post(urlPathEqualTo("/api/instance-logs"))
-                .withRequestBody(equalToJson(jsonPayload))
-                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")) // static test token, see config/application-it.yml
-                .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
-        assertThat(response.getStatusCode()).isEqualTo(OK);
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
+        ;
+        verify(postRequestedFor(urlPathEqualTo("/api/instance-logs"))
+                .withRequestBody(equalToJson(jsonPayload))
+                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
     }
 
     @Test
     public void testPushLogsUnauthenticated() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate();
 
-        stubFor(post(urlPathEqualTo("/api/instance-logs"))
-                .withRequestBody(equalToJson(jsonPayload))
-                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")) // static test token, see config/application-it.yml
-                .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
@@ -111,14 +115,24 @@ public class LogSinkAppIT {
     public void testPushLogsWrongPassword() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, "wrong-password");
 
-        stubFor(post(urlPathEqualTo("/api/instance-logs"))
-                .withRequestBody(equalToJson(jsonPayload))
-                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")) // static test token, see config/application-it.yml
-                .willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
         assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
+    }
+
+    // TODO fix this test. Somehow HttpComponentsClientHttpRequestFactory tries to keep connection to WireMock alive over multiple tests
+    @Test
+    public void testPushLogsUpstreamFails() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
+
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(200)));
+
+        final URI url = URI.create("http://localhost:" + port + "/instance-logs");
+        final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(SERVICE_UNAVAILABLE);
     }
 
     @Test

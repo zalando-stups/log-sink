@@ -4,14 +4,6 @@ tokens:
     scopes:
     - uid
 
-zuul:
-  ignoredServices: '*'
-  routes:
-    instance-logs:
-      path: /instance-logs/**
-      url: ${FULLSTOP_URL}
-
-
 hystrix:
   command:
     default:
@@ -19,11 +11,11 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 5000
+            timeoutInMilliseconds: 50000
   threadpool:
     default:
-      maxQueueSize: 16
-      queueSizeRejectionThreshold: 16
+      maxQueueSize: 64
+      queueSizeRejectionThreshold: 64
 
 #logging:
 #    level:
