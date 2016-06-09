@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   org.zalando.stups.logsink.config.FilterConfiguration,\
-  org.zalando.stups.logsink.config.InstanceLogsConfiguration
+  org.zalando.stups.logsink.config.InstanceLogsConfiguration,\
+  org.zalando.stups.logsink.config.AsyncMetricsConfiguration

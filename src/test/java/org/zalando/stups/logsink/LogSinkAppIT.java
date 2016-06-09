@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -98,6 +97,8 @@ public class LogSinkAppIT {
         verify(postRequestedFor(urlPathEqualTo("/api/instance-logs"))
                 .withRequestBody(equalToJson(jsonPayload))
                 .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
+
+        log.info("METRICS:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/metrics", String.class));
     }
 
     @Test
@@ -122,17 +123,17 @@ public class LogSinkAppIT {
         assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
     }
 
-    // TODO fix this test. Somehow HttpComponentsClientHttpRequestFactory tries to keep connection to WireMock alive over multiple tests
     @Test
     public void testPushLogsUpstreamFails() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
-        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(200)));
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(500)));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(SERVICE_UNAVAILABLE);
+        // even if upstream request fails, due to async processing this endpoint should return a success message
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
     }
 
     @Test

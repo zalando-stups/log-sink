@@ -12,7 +12,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAutoConfiguration
 @ComponentScan(excludeFilters = @Filter(Configuration.class))
 @EnableCircuitBreaker
-@EnableAspectJAutoProxy
 public class LogSinkApp {
 
     public static void main(final String[] args) {

@@ -1,6 +1,5 @@
 package org.zalando.stups.logsink.service;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ public class InstanceLogsServiceImpl implements InstanceLogsService {
     }
 
     @Override
-    @HystrixCommand
     public void handleInstanceLogs(final String payload) {
         final URI proxyUrl = properties.getProxyUrl();
         log.debug("forwarding instance-logs to {}", proxyUrl);

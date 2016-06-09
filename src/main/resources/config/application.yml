@@ -1,8 +1,9 @@
 tokens:
+  use-existing-scheduler: false
   token-configuration-list:
-  - tokenId: log-sink
-    scopes:
-    - uid
+    - tokenId: log-sink
+      scopes:
+        - uid
 
 hystrix:
   command:
@@ -16,6 +17,13 @@ hystrix:
     default:
       maxQueueSize: 64
       queueSizeRejectionThreshold: 64
+
+async:
+  executor:
+    core-pool-size: 8
+    max-pool-size: 32
+    queue-capacity: 16
+    await-termination-seconds: 0
 
 #logging:
 #    level:
