@@ -92,7 +92,10 @@ public class LogSinkAppIT {
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
-        ;
+
+        log.debug("Waiting for async tasks to finish");
+        TimeUnit.SECONDS.sleep(1);
+
         verify(postRequestedFor(urlPathEqualTo("/api/instance-logs"))
                 .withRequestBody(equalToJson(jsonPayload))
                 .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
