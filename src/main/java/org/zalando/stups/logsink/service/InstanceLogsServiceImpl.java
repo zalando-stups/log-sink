@@ -12,7 +12,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.RequestEntity.post;
 
-@Service
 public class InstanceLogsServiceImpl implements InstanceLogsService {
 
     private final Logger log = getLogger(getClass());
@@ -20,7 +19,6 @@ public class InstanceLogsServiceImpl implements InstanceLogsService {
     private final RestOperations rest;
     private final InstanceLogsProperties properties;
 
-    @Autowired
     public InstanceLogsServiceImpl(
             final InstanceLogsProperties properties,
             final RestOperations instanceLogsRestOperations) {

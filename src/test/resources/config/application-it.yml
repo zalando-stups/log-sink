@@ -17,3 +17,4 @@ security:
 logging:
   level:
     org.zalando.stups.logsink: DEBUG
+    org.springframework.retry: DEBUG

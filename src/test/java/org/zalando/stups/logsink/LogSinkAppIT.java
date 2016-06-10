@@ -1,7 +1,6 @@
 package org.zalando.stups.logsink;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -20,6 +19,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -29,6 +29,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -67,8 +68,6 @@ public class LogSinkAppIT {
 
     @Before
     public void setUp() throws Exception {
-        WireMock.reset();
-
         payload = ImmutableMap.of(
                 "foo", "bar",
                 "an_integer", 5,
@@ -81,7 +80,7 @@ public class LogSinkAppIT {
         final TestRestTemplate restOperations = new TestRestTemplate();
         log.info("ENVIRONMENT:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/env", String.class));
         log.info("CONFIG_PROPS:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/configprops", String.class));
-        log.info("ROUTES:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/routes", String.class));
+        log.info("AUTOCONFIG:\n{}", restOperations.getForObject("http://localhost:" + managementPort + "/autoconfig", String.class));
     }
 
     @Test
@@ -124,16 +123,33 @@ public class LogSinkAppIT {
     }
 
     @Test
-    public void testPushLogsUpstreamFails() throws Exception {
+    public void testPushLogsUpstreamFailsOnce() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
-        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(500)));
+        // first calls fails
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).inScenario("Test Retry")
+                .whenScenarioStateIs(STARTED)
+                .willReturn(aResponse().withStatus(500))
+                .willSetStateTo("retry"));
+
+        // second one succeeds
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).inScenario("Test Retry")
+                .whenScenarioStateIs("retry")
+                .willReturn(aResponse().withStatus(201)));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.post(url).contentType(APPLICATION_JSON).body(payload), String.class);
 
         // even if upstream request fails, due to async processing this endpoint should return a success message
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
+
+        log.debug("Waiting for async tasks to finish");
+        TimeUnit.SECONDS.sleep(2);
+
+        // endpoint should have been called twice
+        verify(2, postRequestedFor(urlPathEqualTo("/api/instance-logs"))
+                .withRequestBody(equalToJson(jsonPayload))
+                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
     }
 
     @Test
