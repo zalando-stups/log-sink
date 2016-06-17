@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>Brixton.RC2</version>
+        <version>Brixton.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -18,12 +18,13 @@
     <properties>
         <java.version>1.8</java.version>
         <guava.version>19.0</guava.version>
-        <spring-boot-zalando-stups-tokens.version>0.9.10</spring-boot-zalando-stups-tokens.version>
-        <stups-spring-oauth2-support.version>1.0.15.RC1</stups-spring-oauth2-support.version>
+        <spring-boot-starter-async.version>0.5.1</spring-boot-starter-async.version>
+        <spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
+        <stups-spring-oauth2-support.version>1.0.15</stups-spring-oauth2-support.version>
         <zmon-actuator.version>0.9.5</zmon-actuator.version>
         <wiremock.version>1.58</wiremock.version>
-        <jacoco.version>0.7.6.201602180812</jacoco.version>
-        <assertj.version>3.3.0</assertj.version>
+        <jacoco.version>0.7.7.201606060606</jacoco.version>
+        <assertj.version>3.4.1</assertj.version>
     </properties>
 
     <dependencyManagement>
@@ -43,6 +44,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -50,22 +56,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-zuul</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-hystrix</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -74,6 +72,22 @@
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.zalando.stups</groupId>
+            <artifactId>spring-boot-starter-async</artifactId>
+            <version>${spring-boot-starter-async.version}</version>
         </dependency>
 
         <!-- utility -->
@@ -107,6 +121,11 @@
             <version>${zmon-actuator.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <!-- test -->
 
@@ -224,15 +243,4 @@
             </build>
         </profile>
     </profiles>
-
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/libs-milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
