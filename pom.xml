@@ -18,10 +18,11 @@
     <properties>
         <java.version>1.8</java.version>
         <guava.version>19.0</guava.version>
-        <spring-boot-starter-async.version>0.5.1</spring-boot-starter-async.version>
+        <async-spring-boot-starter.version>0.6.0</async-spring-boot-starter.version>
         <spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
         <stups-spring-oauth2-support.version>1.0.15</stups-spring-oauth2-support.version>
         <zmon-actuator.version>0.9.5</zmon-actuator.version>
+        <cglib.version>3.2.3</cglib.version>
         <wiremock.version>1.58</wiremock.version>
         <jacoco.version>0.7.7.201606060606</jacoco.version>
         <assertj.version>3.4.1</assertj.version>
@@ -81,13 +82,13 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
-            <version>3.2.2</version>
+            <version>${cglib.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.zalando.stups</groupId>
-            <artifactId>spring-boot-starter-async</artifactId>
-            <version>${spring-boot-starter-async.version}</version>
+            <artifactId>async-spring-boot-starter</artifactId>
+            <version>${async-spring-boot-starter.version}</version>
         </dependency>
 
         <!-- utility -->
