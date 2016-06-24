@@ -1,8 +1,6 @@
 package org.zalando.stups.logsink.service;
 
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 import org.zalando.stups.logsink.config.InstanceLogsProperties;
 
