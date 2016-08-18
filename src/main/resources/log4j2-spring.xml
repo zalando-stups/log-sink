@@ -10,7 +10,6 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.zalando.logbook.Logbook" level="TRACE"/>
         <Logger name="org.apache.catalina.connector.ClientAbortException" level="OFF"/>
         <Logger name="org.apache.catalina.startup.DigesterFactory" level="error"/>
         <Logger name="org.apache.catalina.util.LifecycleBase" level="error"/>
