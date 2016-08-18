@@ -38,8 +38,6 @@ logbook:
             - access_token
             - password
 
-#logging:
-#    level:
-#      org.springframework.web: DEBUG
-#      com.netflix.zuul: DEBUG
-#      org.springframework.cloud: DEBUG
+logging:
+    level:
+      org.zalando.logbook.logbook: DEBUG
