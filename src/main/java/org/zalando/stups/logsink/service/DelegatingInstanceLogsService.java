@@ -1,5 +1,7 @@
 package org.zalando.stups.logsink.service;
 
+import org.zalando.stups.logsink.api.TaupageLogData;
+
 class DelegatingInstanceLogsService implements InstanceLogsService {
 
     private final InstanceLogsService delegate;
@@ -9,7 +11,7 @@ class DelegatingInstanceLogsService implements InstanceLogsService {
     }
 
     @Override
-    public void handleInstanceLogs(String payload) {
+    public void handleInstanceLogs(TaupageLogData payload) {
         delegate.handleInstanceLogs(payload);
     }
 }
