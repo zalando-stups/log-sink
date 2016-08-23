@@ -35,6 +35,10 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
+audittrail:
+  event-name: taupage-yaml-sent
+  event-namespace: internal
+
 logbook:
     exclude:
         - /health

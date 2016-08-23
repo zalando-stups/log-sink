@@ -6,6 +6,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
@@ -31,12 +32,15 @@ public class AuditTrailLogService {
     private static final Logger LOG = getLogger(AuditTrailLogService.class);
     private final RestOperations restOperations;
     private final AuditTrailProperties properties;
+    private ObjectMapper objectMapper;
 
+    @Autowired
     public AuditTrailLogService(final RestOperations instanceLogsRestOperations,
-                                final AuditTrailProperties properties) {
+                                final AuditTrailProperties properties, ObjectMapper objectMapper) {
 
         this.restOperations = instanceLogsRestOperations;
         this.properties = properties;
+        this.objectMapper = objectMapper;
     }
 
     @Async
@@ -48,7 +52,7 @@ public class AuditTrailLogService {
         //setting event's header data
         final EventType eventType = new EventType();
         eventType.setName(properties.getEventName());
-        eventType.setNameSpace(properties.getEventNamespace());
+        eventType.setNamespace(properties.getEventNamespace());
         eventType.setVersion(properties.getEventVersion());
         event.setEventType(eventType);
         event.setTriggeredAt(logData.getInstanceBootTime());
@@ -59,14 +63,14 @@ public class AuditTrailLogService {
         payload.setRegion(logData.getRegion());
         payload.setInstanceId(logData.getInstanceId());
         payload.setTaupageYaml(logData.getPayload());
+        event.setPayload(payload);
 
         //finally, generate EventId/SHA..
         final HashFunction sha256 = Hashing.sha256();
-        final ObjectMapper objectMapper = new ObjectMapper();
         final byte[] bytes = objectMapper.writeValueAsBytes(event);
         final HashCode eventId = sha256.hashBytes(bytes);
 
-        final URI auditTrailUrl = properties.getAudittrailUrl();
+        final URI auditTrailUrl = properties.getUrl();
         final URI dest;
         try {
             dest = new URI(auditTrailUrl.toString() + "/" + eventId);

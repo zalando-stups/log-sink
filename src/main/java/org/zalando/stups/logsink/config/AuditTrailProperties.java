@@ -8,12 +8,12 @@ import java.net.URI;
 public class AuditTrailProperties {
 
     // AUDITTRAIL_URL
-    private URI audittrailUrl;
-    // EVENT_NAMESPACE
+    private URI url;
+    // AUDITTRAIL_EVENT_NAMESPACE
     private String eventNamespace;
-    // EVENT_VERSION
+    // AUDITTRAIL_EVENT_VERSION
     private String eventVersion;
-    // EVENT_NAME
+    // AUDITTRAIL_EVENT_NAME
     private String eventName;
 
     public String getEventName() {
@@ -24,12 +24,12 @@ public class AuditTrailProperties {
         this.eventName = eventName;
     }
 
-    public URI getAudittrailUrl() {
-        return audittrailUrl;
+    public URI getUrl() {
+        return url;
     }
 
-    public void setAudittrailUrl(final URI audittrailUrl) {
-        this.audittrailUrl = audittrailUrl;
+    public void setUrl(final URI url) {
+        this.url = url;
     }
 
     public String getEventNamespace() {
