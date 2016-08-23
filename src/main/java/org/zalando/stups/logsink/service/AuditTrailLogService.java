@@ -47,6 +47,8 @@ public class AuditTrailLogService {
     @Retryable(backoff = @Backoff(delay = INITIAL_DELAY_MS, maxDelay = MAX_DELAY, multiplier = MULTIPLIER))
     public void sendTaupageYamlEvent(final TaupageLogData logData) throws JsonProcessingException {
 
+        //first decode it from
+
         final TaupageYamlEvent event = new TaupageYamlEvent();
 
         //setting event's header data

@@ -36,7 +36,7 @@ spring:
       fail-on-unknown-properties: false
 
 audittrail:
-  event-name: taupage-yaml-sent
+  event-name: taupage-yaml-received
   event-namespace: internal
 
 logbook:
