@@ -1,5 +1,7 @@
 package org.zalando.stups.logsink.rest.client.audittrail;
 
+import java.util.Map;
+
 /**
  * Author: clohmann
  * Date: 22.08.16
@@ -13,7 +15,7 @@ public class TaupageYamlPayload {
 
     private String instanceId;
 
-    private String taupageYaml;
+    private Map taupageYaml;
 
     public String getAccountId() {
         return accountId;
@@ -39,11 +41,11 @@ public class TaupageYamlPayload {
         this.instanceId = instanceId;
     }
 
-    public String getTaupageYaml() {
+    public Map getTaupageYaml() {
         return taupageYaml;
     }
 
-    public void setTaupageYaml(final String taupageYaml) {
+    public void setTaupageYaml(final Map taupageYaml) {
         this.taupageYaml = taupageYaml;
     }
 }

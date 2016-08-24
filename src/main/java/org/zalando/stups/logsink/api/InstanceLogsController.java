@@ -34,7 +34,7 @@ public class InstanceLogsController {
     @ResponseStatus(CREATED)
     @RequestMapping(method = POST, path = "/instance-logs", consumes = APPLICATION_JSON_VALUE)
     public void receiveInstanceLogs(@RequestBody final TaupageLogData data) throws IOException {
-//        instanceLogsService.handleInstanceLogs(data);
+        instanceLogsService.handleInstanceLogs(data);
         if ("USER_DATA".equals(data.getLogType())) {
             LOG.debug("Instance-log is a taupage-yaml");
             auditTrailLogService.sendTaupageYamlEvent(data);
