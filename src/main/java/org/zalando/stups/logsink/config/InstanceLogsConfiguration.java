@@ -1,10 +1,7 @@
 package org.zalando.stups.logsink.config;
 
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +19,6 @@ import org.zalando.stups.logsink.service.RetryableInstanceLogsService;
 import org.zalando.stups.oauth2.spring.client.StupsOAuth2RestTemplate;
 import org.zalando.stups.oauth2.spring.client.StupsTokensAccessTokenProvider;
 import org.zalando.stups.tokens.AccessTokens;
-
-import javax.net.ssl.SSLContext;
-import java.security.NoSuchAlgorithmException;
 
 @Configuration
 @EnableConfigurationProperties(InstanceLogsProperties.class)

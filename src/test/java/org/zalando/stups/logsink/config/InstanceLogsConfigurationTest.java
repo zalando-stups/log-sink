@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.zalando.logbook.Logbook;
 import org.zalando.stups.logsink.service.AsyncInstanceLogService;
 import org.zalando.stups.logsink.service.InstanceLogsService;
 import org.zalando.stups.tokens.AccessTokens;
@@ -45,6 +46,11 @@ public class InstanceLogsConfigurationTest {
         @Bean
         AccessTokens accessTokens() {
             return mock(AccessTokens.class);
+        }
+
+        @Bean
+        Logbook logbook() {
+            return mock(Logbook.class);
         }
 
     }
