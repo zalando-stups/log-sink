@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -100,9 +101,9 @@ public class LogSinkAppIT {
         eventType.setVersion(auditTrailProperties.getEventVersion());
         taupageYamlEvent.setEventType(eventType);
         TaupageYamlPayload taupageYamlPayload = new TaupageYamlPayload();
-        taupageYamlPayload.setAccountId((String)instanceLogsPayload.get("account_id"));
-        taupageYamlPayload.setInstanceId((String)instanceLogsPayload.get("instance_id"));
-        taupageYamlPayload.setRegion((String)instanceLogsPayload.get("region"));
+        taupageYamlPayload.setAccountId((String) instanceLogsPayload.get("account_id"));
+        taupageYamlPayload.setInstanceId((String) instanceLogsPayload.get("instance_id"));
+        taupageYamlPayload.setRegion((String) instanceLogsPayload.get("region"));
         taupageYamlPayload.setTaupageYaml(userDataPayload);
         taupageYamlEvent.setPayload(taupageYamlPayload);
 
@@ -124,7 +125,7 @@ public class LogSinkAppIT {
     }
 
     @Test
-    public void testPushLogs() throws Exception {
+    public void testPushTaupageLog() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
         stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
@@ -148,6 +149,69 @@ public class LogSinkAppIT {
 
         log.info("METRICS:\n{}",
                  restOperations.getForObject("http://localhost:" + managementPort + "/metrics", String.class));
+    }
+
+    @Test
+    public void testPushTaupageLogWithRetry() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
+
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
+        stubFor(put(urlEqualTo("/events/" + eventID)).willReturn(aResponse().withStatus(429)));
+
+        final URI url = URI.create("http://localhost:" + port + "/instance-logs");
+        final ResponseEntity<String> response = restOperations.exchange(
+                RequestEntity.post(url).contentType(APPLICATION_JSON).body(
+                        instanceLogsPayload), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
+
+        log.debug("Waiting for async tasks to finish");
+        TimeUnit.MILLISECONDS.sleep(7500);
+
+        verify(postRequestedFor(urlPathEqualTo("/api/instance-logs"))
+                       .withRequestBody(equalToJson(intanceLogsJsonPayload))
+                       .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
+
+        verify(3, putRequestedFor(urlPathEqualTo("/events/" + eventID))
+                .withRequestBody(equalToJson(new String(auditTrailJsonPayload)))
+                .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
+
+        //make sure that both services were executed asynchronously
+        final String metrics = restOperations.getForObject("http://localhost:" + managementPort + "/metrics",
+                                                           String.class);
+        final Object completedTaskCount = JsonPath.read(metrics, "$.['async.executor.threadPool.completedTaskCount']");
+        assertThat((Integer) completedTaskCount).isEqualTo(2);
+    }
+
+    @Test
+    public void testPushStandardLog() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
+
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
+
+        //change the log type to something different than 'USER_DATA' to avoid sending an audit trail event
+        instanceLogsPayload.put("log_type", "SOMETHING_DIFFERENT");
+
+        final URI url = URI.create("http://localhost:" + port + "/instance-logs");
+        final ResponseEntity<String> response = restOperations.exchange(
+                RequestEntity.post(url).contentType(APPLICATION_JSON).body(
+                        instanceLogsPayload), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
+
+        log.debug("Waiting for async tasks to finish");
+        TimeUnit.MILLISECONDS.sleep(7500);
+
+        final String standardLogsPayload = objectMapper.writeValueAsString(instanceLogsPayload);
+        verify(postRequestedFor(urlPathEqualTo("/api/instance-logs"))
+                       .withRequestBody(equalToJson(standardLogsPayload))
+                       .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
+
+        verify(0, putRequestedFor(urlPathMatching("/events/.*")));
+
+        //there should be just one completed task
+        final String metrics = restOperations.getForObject("http://localhost:" + managementPort + "/metrics",
+                                                           String.class);
+        final Object completedTaskCount = JsonPath.read(metrics, "$.['async.executor.threadPool.completedTaskCount']");
+        assertThat((Integer) completedTaskCount).isEqualTo(1);
     }
 
     @Test

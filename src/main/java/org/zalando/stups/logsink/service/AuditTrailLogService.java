@@ -20,7 +20,6 @@ import org.zalando.stups.logsink.rest.client.audittrail.TaupageYamlPayload;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
@@ -57,9 +56,9 @@ public class AuditTrailLogService {
 
     @Async
     @Retryable(backoff = @Backoff(delay = INITIAL_DELAY_MS, maxDelay = MAX_DELAY, multiplier = MULTIPLIER))
-    public void sendTaupageYamlEvent(final TaupageLogData logData) throws JsonProcessingException {
+    public void sendTaupageYamlEvent(final TaupageLogData logData) {
 
-        final Optional<Map> userData = getUserData(logData);
+        final Map userData = getUserData(logData);
 
         //setting up an event
         final TaupageYamlEvent event = new TaupageYamlEvent();
@@ -75,28 +74,27 @@ public class AuditTrailLogService {
         payload.setAccountId(logData.getAccountId());
         payload.setRegion(logData.getRegion());
         payload.setInstanceId(logData.getInstanceId());
-        payload.setTaupageYaml(userData.orElse(ImmutableMap.of()));
+        payload.setTaupageYaml(userData);
         event.setPayload(payload);
 
         // marshal event to json
-        final byte[] marshaled = objectMapper.writeValueAsBytes(event);
-
-        //finally, generate EventId/SHA..
-        final String eventId = createEventID(marshaled);
-
-        final URI auditTrailUrl = properties.getUrl();
-        final URI dest;
+        final byte[] marshaled;
         try {
-            dest = new URI(auditTrailUrl.toString() + "/" + eventId);
+            marshaled = objectMapper.writeValueAsBytes(event);
+            //finally, generate EventId/SHA..
+            final String eventId = createEventID(marshaled);
+            final URI auditTrailUrl = properties.getUrl();
+            final URI dest;
+            dest = URI.create(auditTrailUrl.toString() + "/" + eventId);
             LOG.debug("sending taupage YAML Event...");
             restOperations.exchange(put(dest).contentType(APPLICATION_JSON).body(marshaled), byte[].class);
-        } catch (URISyntaxException e) {
-            LOG.error("Unable to construct URI for Audittrail API! BaseURI: {}, Event: {}", auditTrailUrl.toString(),
-                      eventId);
+        } catch (JsonProcessingException e) {
+            // at least log the payload in case of error
+            LOG.error("Could not marshal JSON for Taupage YAML Event data: {}", logData.getPayload());
         }
     }
 
-    private Optional<Map> getUserData(final TaupageLogData logData) {
+    private Map getUserData(final TaupageLogData logData) {
         //first decode it and parse a map from user data
         final String encodedUserData = logData.getPayload();
         return Optional.ofNullable(encodedUserData)
@@ -109,10 +107,10 @@ public class AuditTrailLogService {
                                   logData.getAccountId());
                     }
                     return ImmutableMap.of();
-                });
+                }).orElse(ImmutableMap.of());
     }
 
-    private String createEventID(final byte[] marshaled) throws JsonProcessingException {
+    private String createEventID(final byte[] marshaled) {
         final HashFunction sha256 = Hashing.sha256();
         return sha256.hashBytes(marshaled).toString();
     }
