@@ -6,7 +6,27 @@
 This application is supposed to serve as a central sink for audit- and traceability relevant log files in the STUPS ecosystem,
 such as the taupage.yaml and logs files written by audit daemon in Taupage hosts.
 
-The current implementation is only a proxy that forwards all matching requests to Fullstop.
+The current implementation is a proxy that forwards all matching requests to Fullstop. If a request contains a taupage.yaml file
+it will send a corresponding event including the taupage.yaml data to zalando's audit system.
+
+### Environment Variables
+
+The following environment variables/spring properties are required.
+ 
+   | Variable                  | Description                                          |
+   | ------------------------- | ---------------------------------------------------- |
+   |SECURITY_USER_NAME         | Basic Auth User Name                                 |
+   |SECURITY_USER_PASSWORD     | Basic Auth Password                                  |
+   |TOKENS_ACCESS_TOKEN_URI    | Auth Server URL                                      |
+   |FULLSTOP_URL               | Fullstop URL                                         |
+   |INSTANCE_LOGS_PROXY_URL    | Proxy URL                                            |
+   |MANAGEMENT_PORT            | Spring Boot's management capabilities                |
+   |MANAGEMENT_SECURITY_ENABLED| Spring Boot's management capabilities                |
+   |CREDENTIALS_DIR            | oauth2 credentials directory                         |
+   |AUDITTRAIL_EVENT_NAME      | Name of the event which will be sent to audit system |
+   |AUDITTRAIL_EVENT_VERSION   | Version of the event schema                          |
+   |AUDITTRAIL_EVENT_NAMESPACE | Namespace of that Event                              |
+   |AUDITTRAIL_URL             | URL of the audit system                              | 
 
 ## License
 

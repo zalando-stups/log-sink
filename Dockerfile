@@ -1,4 +1,4 @@
-FROM registry.opensource.zalan.do/stups/openjdk:8-33
+FROM registry.opensource.zalan.do/stups/openjdk:8-37
 
 MAINTAINER Zalando SE
 
