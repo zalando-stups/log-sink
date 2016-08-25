@@ -152,16 +152,22 @@ public class LogSinkAppIT {
     }
 
     @Test
-    public void testPushTaupageLogWithRetry() throws Exception {
+    public void testPushTaupageLogWithAsyncRetry() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
-        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
-        stubFor(put(urlEqualTo("/events/" + eventID)).willReturn(aResponse().withStatus(429)));
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201).withFixedDelay(100)));
+        stubFor(put(urlEqualTo("/events/" + eventID)).willReturn(aResponse().withStatus(429).withFixedDelay(100)));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(
                 RequestEntity.post(url).contentType(APPLICATION_JSON).body(
                         instanceLogsPayload), String.class);
+
+        //make sure that both services are being executed asynchronously
+        final String metrics = restOperations.getForObject("http://localhost:" + managementPort + "/metrics",
+                                                           String.class);
+        final Object activeCount = JsonPath.read(metrics, "$.['async.executor.threadPool.activeCount']");
+        assertThat((Integer) activeCount).isEqualTo(2);
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
 
         log.debug("Waiting for async tasks to finish");
@@ -174,12 +180,6 @@ public class LogSinkAppIT {
         verify(3, putRequestedFor(urlPathEqualTo("/events/" + eventID))
                 .withRequestBody(equalToJson(new String(auditTrailJsonPayload)))
                 .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
-
-        //make sure that both services were executed asynchronously
-        final String metrics = restOperations.getForObject("http://localhost:" + managementPort + "/metrics",
-                                                           String.class);
-        final Object completedTaskCount = JsonPath.read(metrics, "$.['async.executor.threadPool.completedTaskCount']");
-        assertThat((Integer) completedTaskCount).isEqualTo(2);
     }
 
     @Test
@@ -198,7 +198,7 @@ public class LogSinkAppIT {
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
 
         log.debug("Waiting for async tasks to finish");
-        TimeUnit.MILLISECONDS.sleep(7500);
+        TimeUnit.SECONDS.sleep(1);
 
         final String standardLogsPayload = objectMapper.writeValueAsString(instanceLogsPayload);
         verify(postRequestedFor(urlPathEqualTo("/api/instance-logs"))
@@ -206,12 +206,6 @@ public class LogSinkAppIT {
                        .withHeader(AUTHORIZATION, equalTo("Bearer 1234567890")));
 
         verify(0, putRequestedFor(urlPathMatching("/events/.*")));
-
-        //there should be just one completed task
-        final String metrics = restOperations.getForObject("http://localhost:" + managementPort + "/metrics",
-                                                           String.class);
-        final Object completedTaskCount = JsonPath.read(metrics, "$.['async.executor.threadPool.completedTaskCount']");
-        assertThat((Integer) completedTaskCount).isEqualTo(1);
     }
 
     @Test
