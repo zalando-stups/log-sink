@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import com.jayway.jsonpath.JsonPath;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -152,7 +151,7 @@ public class LogSinkAppIT {
     }
 
     @Test
-    public void testPushTaupageLogWithAsyncRetry() throws Exception {
+    public void testPushTaupageLogWithRetry() throws Exception {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
         stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201).withFixedDelay(100)));
@@ -162,12 +161,6 @@ public class LogSinkAppIT {
         final ResponseEntity<String> response = restOperations.exchange(
                 RequestEntity.post(url).contentType(APPLICATION_JSON).body(
                         instanceLogsPayload), String.class);
-
-        //make sure that both services are being executed asynchronously
-        final String metrics = restOperations.getForObject("http://localhost:" + managementPort + "/metrics",
-                                                           String.class);
-        final Object activeCount = JsonPath.read(metrics, "$.['async.executor.threadPool.activeCount']");
-        assertThat((Integer) activeCount).isEqualTo(2);
         assertThat(response.getStatusCode()).isEqualTo(CREATED);
 
         log.debug("Waiting for async tasks to finish");
