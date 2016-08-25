@@ -2,6 +2,7 @@ package org.zalando.stups.logsink.service;
 
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.zalando.stups.logsink.api.TaupageLogData;
 
 public class RetryableInstanceLogsService extends DelegatingInstanceLogsService {
 
@@ -15,7 +16,7 @@ public class RetryableInstanceLogsService extends DelegatingInstanceLogsService 
 
     @Retryable(backoff = @Backoff(delay = INITIAL_DELAY_MS, maxDelay = MAX_DELAY, multiplier = MULTIPLIER))
     @Override
-    public void handleInstanceLogs(String payload) {
+    public void handleInstanceLogs(TaupageLogData payload) {
         super.handleInstanceLogs(payload);
     }
 }

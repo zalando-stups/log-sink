@@ -2,6 +2,7 @@ package org.zalando.stups.logsink.service;
 
 import org.slf4j.Logger;
 import org.springframework.web.client.RestOperations;
+import org.zalando.stups.logsink.api.TaupageLogData;
 import org.zalando.stups.logsink.config.InstanceLogsProperties;
 
 import java.net.URI;
@@ -25,7 +26,7 @@ public class InstanceLogsServiceImpl implements InstanceLogsService {
     }
 
     @Override
-    public void handleInstanceLogs(final String payload) {
+    public void handleInstanceLogs(final TaupageLogData payload) {
         final URI proxyUrl = properties.getProxyUrl();
         log.debug("forwarding instance-logs to {}", proxyUrl);
         rest.exchange(post(proxyUrl)

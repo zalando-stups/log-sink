@@ -10,6 +10,7 @@ tokens:
 instance-logs:
   proxy-url: http://localhost:${wiremock.port:10080}/api/instance-logs
 
+
 security:
   user:
     name: it-user
@@ -18,3 +19,9 @@ logging:
   level:
     org.zalando.stups.logsink: DEBUG
     org.springframework.retry: DEBUG
+
+audittrail:
+  url: http://localhost:${wiremock.port:10080}/events
+  event-name: taupage-yaml-received-test
+  event-namespace: integration
+  event-version: 1

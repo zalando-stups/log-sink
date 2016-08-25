@@ -1,5 +1,7 @@
 package org.zalando.stups.logsink.config;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +10,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestOperations;
+import org.zalando.logbook.Logbook;
+import org.zalando.logbook.httpclient.LogbookHttpRequestInterceptor;
+import org.zalando.logbook.httpclient.LogbookHttpResponseInterceptor;
 import org.zalando.stups.logsink.service.AsyncInstanceLogService;
 import org.zalando.stups.logsink.service.InstanceLogsServiceImpl;
 import org.zalando.stups.logsink.service.RetryableInstanceLogsService;
@@ -21,12 +26,14 @@ public class InstanceLogsConfiguration {
 
     @Bean
     @Primary
-    public AsyncInstanceLogService asyncInstanceLogService(final RetryableInstanceLogsService retryableInstanceLogsService) {
+    public AsyncInstanceLogService asyncInstanceLogService(
+            final RetryableInstanceLogsService retryableInstanceLogsService) {
         return new AsyncInstanceLogService(retryableInstanceLogsService);
     }
 
     @Bean
-    public RetryableInstanceLogsService retryableInstanceLogsService(final InstanceLogsServiceImpl instanceLogsServiceImpl) {
+    public RetryableInstanceLogsService retryableInstanceLogsService(
+            final InstanceLogsServiceImpl instanceLogsServiceImpl) {
         return new RetryableInstanceLogsService(instanceLogsServiceImpl);
     }
 
@@ -48,7 +55,13 @@ public class InstanceLogsConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(value = ClientHttpRequestFactory.class, name = "instanceLogsRequestFactory")
-    public ClientHttpRequestFactory instanceLogsRequestFactory() {
-        return new HttpComponentsClientHttpRequestFactory();
+    public ClientHttpRequestFactory instanceLogsRequestFactory(final Logbook logbook) {
+        CloseableHttpClient client = HttpClientBuilder.create()
+                .addInterceptorFirst(new LogbookHttpRequestInterceptor(logbook))
+                .addInterceptorFirst(new LogbookHttpResponseInterceptor())
+                .build();
+        final HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setHttpClient(client);
+        return httpRequestFactory;
     }
 }
