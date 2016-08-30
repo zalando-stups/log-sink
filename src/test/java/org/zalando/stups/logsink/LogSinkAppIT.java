@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,18 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.singletonMap;
@@ -50,12 +62,19 @@ public class LogSinkAppIT {
 
     private static final String CORRECT_USER = "it-user";
     private static final String CORRECT_PASSWORD = "t0p5ecr3t";
+
     @Rule
     public final SpringMethodRule springMethodRule = new SpringMethodRule();
+
     @Rule
     public final WireMockRule wireMockRule = new WireMockRule(
             Integer.valueOf(System.getProperty("wiremock.port", "10080")));
+
+    @Rule
+    public OutputCapture capture = new OutputCapture();
+
     private final Logger log = getLogger(getClass());
+
     @Value("${local.server.port}")
     private int port;
 
@@ -266,5 +285,25 @@ public class LogSinkAppIT {
         final URI url = URI.create("http://localhost:" + port);
         final ResponseEntity<String> response = restOperations.exchange(RequestEntity.get(url).build(), String.class);
         assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
+    }
+
+    @Test
+    public void testAuditLogDataIsObfuscated() throws Exception {
+        final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
+
+        stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
+
+        instanceLogsPayload.put("log_type", "AUDIT_LOG");
+
+        final URI url = URI.create("http://localhost:" + port + "/instance-logs");
+        final ResponseEntity<String> response = restOperations.exchange(
+                RequestEntity.post(url).contentType(APPLICATION_JSON).body(
+                        instanceLogsPayload), String.class);
+        assertThat(response.getStatusCode()).isEqualTo(CREATED);
+
+        log.debug("Waiting for async tasks to finish");
+        TimeUnit.SECONDS.sleep(1);
+
+        assertThat(capture.toString()).contains("\"log_data\":\"***\"");
     }
 }
