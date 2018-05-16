@@ -3,7 +3,7 @@ package org.zalando.stups.logsink.config;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.zalando.logbook.BodyObfuscator;
+import org.zalando.logbook.BodyFilter;
 import org.zalando.logbook.spring.LogbookAutoConfiguration;
 
 import java.util.regex.Pattern;
@@ -17,7 +17,7 @@ public class LogbookConfig {
     private static final String LOG_DATA_OBFUSCATED = "\"log_data\":\"***\"";
 
     @Bean
-    public BodyObfuscator auditLogBodyObfuscator() {
+    public BodyFilter auditLogBodyObfuscator() {
         return (contentType, body) -> {
             if (LOG_TYPE_AUDIT_LOG.matcher(body).find()) {
                 return LOG_DATA.matcher(body).replaceFirst(LOG_DATA_OBFUSCATED);

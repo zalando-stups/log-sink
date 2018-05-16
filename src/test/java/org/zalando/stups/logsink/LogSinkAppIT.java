@@ -147,6 +147,7 @@ public class LogSinkAppIT {
         final TestRestTemplate restOperations = new TestRestTemplate(CORRECT_USER, CORRECT_PASSWORD);
 
         stubFor(post(urlPathEqualTo("/api/instance-logs")).willReturn(aResponse().withStatus(201)));
+        stubFor(put(urlPathMatching("/events/.*")));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(
@@ -260,6 +261,8 @@ public class LogSinkAppIT {
         stubFor(post(urlPathEqualTo("/api/instance-logs")).inScenario("Test Retry")
                         .whenScenarioStateIs("retry")
                         .willReturn(aResponse().withStatus(201)));
+
+        stubFor(put(urlPathMatching("/events/.*")));
 
         final URI url = URI.create("http://localhost:" + port + "/instance-logs");
         final ResponseEntity<String> response = restOperations.exchange(
