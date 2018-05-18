@@ -51,3 +51,5 @@ logbook:
         parameters:
             - access_token
             - password
+
+logging.level.org.springframework.boot.actuate.audit.listener: debug
