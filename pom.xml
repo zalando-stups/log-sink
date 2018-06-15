@@ -25,7 +25,7 @@
         <wiremock.version>2.17.0</wiremock.version>
         <jacoco.version>0.8.1</jacoco.version>
         <assertj.version>3.10.0</assertj.version>
-        <logbook.version>1.8.0</logbook.version>
+        <logbook.version>1.8.1</logbook.version>
         <spring.cloud.starter.hystrix.version>1.4.4.RELEASE</spring.cloud.starter.hystrix.version>
         <dependency-check-maven.version>3.2.0</dependency-check-maven.version>
     </properties>
