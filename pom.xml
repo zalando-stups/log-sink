@@ -21,7 +21,7 @@
         <spring-boot-zalando-stups-tokens.version>0.9.11</spring-boot-zalando-stups-tokens.version>
         <stups-spring-oauth2-support.version>1.0.21</stups-spring-oauth2-support.version>
         <zmon-actuator.version>0.9.8</zmon-actuator.version>
-        <cglib.version>3.2.6</cglib.version>
+        <cglib.version>3.2.7</cglib.version>
         <wiremock.version>2.18.0</wiremock.version>
         <jacoco.version>0.8.1</jacoco.version>
         <assertj.version>3.10.0</assertj.version>
